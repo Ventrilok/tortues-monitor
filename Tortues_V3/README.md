@@ -39,7 +39,7 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
 - Montée de niveau : 3 mesures consécutives (3 min).
 - Descente : la valeur doit être revenue avec une marge (0,3 °C, 2 points d'humidité, 200 ppm).
 - Dans l'historique, chaque valeur hors plage OK a un fond de la couleur de son niveau.
-- Badge « 24h » (colonne de droite) : pire niveau des dernières 24 h, remis à zéro par **Actuel**.
+- Badge « 24h » (colonne de droite) : pire niveau des dernières 24 h, remis à zéro par **NOW**.
 - Ligne du bas : état (OK + nombre d'enregistrements + nom du fichier, ou le message de panne) et, à droite,
   la version du programme (constante `VERSION` en tête du programme, à incrémenter à chaque modification,
   avec une entrée dans `CHANGELOG.md`).
@@ -53,7 +53,7 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
   flèche DOWN (page 1 = la plus récente).
   L'historique garde sa position quand une nouvelle mesure arrive, sauf s'il est déjà sur la ligne la
   plus récente.
-- **Actuel** (rond) = retour à la page 1, la plus récente, + remise à zéro du badge 24h.
+- **NOW** (rond) = retour à la page 1, la plus récente, + remise à zéro du badge 24h.
 - Boutons en blanc = actifs, en gris = inactifs (moins de deux enregistrements) ; inversés pendant l'appui,
   brièvement gris en butée. L'horloge est neutre (blanc sur noir). Seuls le bandeau, les valeurs de
   l'historique et le badge 24h portent une couleur, toujours celle d'un niveau d'alerte.
@@ -130,7 +130,7 @@ Le fichier `URTouchCD.h` de la bibliothèque URTouch installée est celui d'orig
 inatteignable. Depuis la V3.6 le programme lit la dalle en valeurs brutes et fait lui-même la conversion
 en pixels 800 × 480 avec les constantes `TOUCH_RAW_*` ; le fichier de la bibliothèque n'a plus d'effet.
 Les valeurs en place ont été mesurées le 2026-11-01 sur cette dalle (canal B = horizontale décroissante,
-canal A = verticale décroissante) ; la procédure ci-dessous sert si l'écran ou la dalle change.
+canal A = verticale croissante) ; la procédure ci-dessous sert si l'écran ou la dalle change.
 
 **Comment** (moniteur série de l'IDE, 115200) :
 
@@ -142,11 +142,11 @@ canal A = verticale décroissante) ; la procédure ci-dessous sert si l'écran o
 3. Reporter : A du bord gauche dans `TOUCH_RAW_LEFT`, A du bord droit dans `TOUCH_RAW_RIGHT`,
    B du bord haut dans `TOUCH_RAW_TOP`, B du bord bas dans `TOUCH_RAW_BOTTOM`. Si une valeur de bord est
    plus grande que son opposée (axe inversé), c'est normal : la conversion en tient compte.
-4. Téléverser, vérifier que UP, DOWN et Actuel réagissent (le bouton s'inverse pendant l'appui), puis
+4. Téléverser, vérifier que UP, DOWN et NOW réagissent (le bouton s'inverse pendant l'appui), puis
    retirer la ligne de trace.
 
-Les zones de détection couvrent toute la colonne de droite (x ≥ 664) en trois bandes (UP 78–175,
-DOWN 176–290, Actuel 350–460), plus larges que les dessins pour tolérer une calibration approximative.
+Les zones de détection couvrent toute la colonne de droite (x ≥ 664), coupée en trois bandes à mi-distance
+entre les boutons (UP ≤ 175, DOWN 176–312, NOW ≥ 313), pour tolérer une calibration verticale approximative.
 
 ## Mise à l'heure
 

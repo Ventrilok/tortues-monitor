@@ -3,7 +3,14 @@
 Une entrée par version. La constante `VERSION` du programme et ce fichier évoluent ensemble :
 à chaque modification, incrémenter l'une et compléter l'autre.
 
-## V3.10 – 2026-11-01
+## V3.11 – 2026-11-01
+
+- Axe vertical de la dalle remis dans le bon sens : en V3.7–V3.10 il était inversé, si bien que le bouton
+  rond agissait comme UP et UP comme le bouton rond (indiscernable depuis la page 2, visible depuis la
+  page 3). Zones de détection redécoupées à mi-distance entre les boutons.
+- Le bouton rond s'appelle « NOW ».
+
+## V3.10 – 2026-11-01 (bouton rond lu comme UP)
 
 - Le bouton rond s'appelle « Actuel » (au lieu de « Refresh ») : retour à la page 1, la plus récente,
   et remise à zéro du badge 24h (comportement inchangé).
