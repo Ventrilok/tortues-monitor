@@ -41,7 +41,7 @@
 #include <SPI.h>
 #include <avr/wdt.h>
 
-const char VERSION[] = "V3.8";             // affiche en bas a droite de l'ecran et au demarrage
+const char VERSION[] = "V3.9";             // affiche en bas a droite de l'ecran et au demarrage
 
 // =====================================================================
 //  REGLAGES UTILISATEUR
@@ -58,7 +58,6 @@ const uint8_t CONFIRM_COUNT     = 3;     // mesures consecutives avant de change
 const int16_t TOUCH_RAW_LEFT  = 3490, TOUCH_RAW_RIGHT  = 327;    // bord gauche -> bord droit (axe inverse)
 const int16_t TOUCH_RAW_TOP   = 3930, TOUCH_RAW_BOTTOM = 610;    // bord haut -> bord bas (axe inverse)
 const bool    TOUCH_SWAP_XY   = true;    // sur cette dalle le canal B porte l'horizontale, le canal A la verticale
-const bool    TOUCH_TRACE     = true;    // ecrit "# TOUCH ..." sur le port serie a chaque appui (calibration)
 
 // Seuils. S = surveillance, A = alerte, U = urgence. Plage OK = entre LOW_S et HIGH_S.
 const float T_LOW_U = 3.0, T_LOW_A = 4.0, T_LOW_S = 4.5, T_HIGH_S = 8.0, T_HIGH_A = 9.0, T_HIGH_U = 10.0;
@@ -435,14 +434,19 @@ void drawButtonState(uint8_t which, uint8_t state) {
   useNormalColors();
 }
 
-void drawScrollIndicator() {              // "ligne / total" sous la fleche DOWN (une ligne vide d'ecart)
+void drawScrollIndicator() {              // "page / total" sous la fleche DOWN (une ligne vide d'ecart)
   tft.setColor(0, 0, 0);
   tft.fillRect(664, 294, 799, 350);
   useNormalColors();
   if (numRec == 0) return;
   char a[12], b[12], line[20];
-  snprintf(a, sizeof(a), "%lu", (unsigned long)(viewTop / REC_SIZE + 1));
-  snprintf(b, sizeof(b), "%lu", (unsigned long)numRec);
+  // Pages comptees depuis le plus recent (page 1) ; la page la plus ancienne, calee, compte comme une page entiere.
+  const uint32_t page = (uint32_t)ROWS * REC_SIZE;
+  const uint32_t last = fileBytes - REC_SIZE;
+  uint32_t pageNo = (last > viewTop) ? (last - viewTop + page - 1) / page + 1 : 1;
+  uint32_t pages  = (numRec + ROWS - 1) / ROWS;
+  snprintf(a, sizeof(a), "%lu", (unsigned long)pageNo);
+  snprintf(b, sizeof(b), "%lu", (unsigned long)pages);
   snprintf(line, sizeof(line), "%s/%s", a, b);
   uint8_t len = strlen(line);
   int labelY;
@@ -457,7 +461,7 @@ void drawScrollIndicator() {              // "ligne / total" sous la fleche DOWN
     labelY = 336;
   }
   tft.setFont(SmallFont);
-  tft.print("ligne / total", 692, labelY);
+  tft.print("page / total", 692, labelY);
   tft.setFont(BigFont);
 }
 
@@ -630,10 +634,6 @@ bool touchRead(int16_t &x, int16_t &y) {
   if (TOUCH_SWAP_XY) { int32_t t = ra; ra = rb; rb = t; }
   x = constrain(map(ra, TOUCH_RAW_LEFT, TOUCH_RAW_RIGHT, 0, 799), 0, 799);
   y = constrain(map(rb, TOUCH_RAW_TOP, TOUCH_RAW_BOTTOM, 0, 479), 0, 479);
-  if (TOUCH_TRACE) {
-    Serial.print(F("# TOUCH brut A=")); Serial.print(ra); Serial.print(F(" B=")); Serial.print(rb);
-    Serial.print(F(" -> x=")); Serial.print(x); Serial.print(F(" y=")); Serial.println(y);
-  }
   return true;
 }
 // Zones : toute la colonne de droite (x >= 664), trois bandes : UP, DOWN, Refresh.

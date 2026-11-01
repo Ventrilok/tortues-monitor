@@ -21,7 +21,6 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
 |---|---|---|
 | `TEMP_OFFSET` | 2.3 | compensation de température du capteur (voir calibration) |
 | `TOUCH_RAW_*`, `TOUCH_SWAP_XY` | | calibration de la dalle tactile (voir « Boutons tactiles ») |
-| `TOUCH_TRACE` | true | trace `# TOUCH …` sur le port série à chaque appui |
 | `MEASURE_EVERY_MIN` | 1 | mesure, écran, LED |
 | `RECORD_EVERY_MIN` | 15 | écriture sur carte SD, alignée sur :00 :15 :30 :45 |
 | `CONFIRM_COUNT` | 3 | mesures consécutives avant changement de niveau (3 min) |
@@ -50,9 +49,10 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
 - Bandeau : date/heure de la dernière mesure, valeurs en gros, fond = niveau global.
 - 10 lignes d'historique, une par enregistrement (15 min) → 2 h 30 visibles.
 - **UP** = vers le plus récent, **DOWN** = vers le plus ancien, **par page de 10 lignes** (2 h 30). La page
-  la plus ancienne reste pleine. Maintenir le doigt = défilement continu.
+  la plus ancienne reste pleine. Maintenir le doigt = défilement continu. Compteur « page / total » sous la
+  flèche DOWN (page 1 = la plus récente).
   L'historique garde sa position quand une nouvelle mesure arrive, sauf s'il est déjà sur la ligne la
-  plus récente. Compteur « ligne / total » sous la flèche DOWN.
+  plus récente.
 - **Refresh** = retour au plus récent + remise à zéro du badge 24h.
 - Boutons en blanc = actifs, en gris = inactifs (moins de deux enregistrements) ; inversés pendant l'appui,
   brièvement gris en butée. L'horloge est neutre (blanc sur noir). Seuls le bandeau, les valeurs de
@@ -134,15 +134,16 @@ canal A = verticale décroissante) ; la procédure ci-dessous sert si l'écran o
 
 **Comment** (moniteur série de l'IDE, 115200) :
 
-1. Appuyer au milieu de chaque bord de l'écran : gauche, droite, haut, bas. Chaque appui écrit une ligne
-   `# TOUCH brut A=… B=… -> x=… y=…`.
+1. Dans `touchRead()`, ajouter temporairement une ligne qui écrit `ra`, `rb`, `x`, `y` sur le port série
+   (la trace `# TOUCH` de la V3.6–V3.8 a été retirée en V3.9). Appuyer au milieu de chaque bord de l'écran :
+   gauche, droite, haut, bas.
 2. Si un glissement du doigt de haut en bas fait surtout varier **A** (et non B), mettre
    `TOUCH_SWAP_XY = true` et recommencer.
 3. Reporter : A du bord gauche dans `TOUCH_RAW_LEFT`, A du bord droit dans `TOUCH_RAW_RIGHT`,
    B du bord haut dans `TOUCH_RAW_TOP`, B du bord bas dans `TOUCH_RAW_BOTTOM`. Si une valeur de bord est
    plus grande que son opposée (axe inversé), c'est normal : la conversion en tient compte.
-4. Téléverser, vérifier que UP, DOWN et Refresh réagissent (le bouton s'inverse pendant l'appui).
-   Ensuite `TOUCH_TRACE = false` si la trace gêne la lecture du flux CSV.
+4. Téléverser, vérifier que UP, DOWN et Refresh réagissent (le bouton s'inverse pendant l'appui), puis
+   retirer la ligne de trace.
 
 Les zones de détection couvrent toute la colonne de droite (x ≥ 664) en trois bandes (UP 78–175,
 DOWN 176–290, Refresh 350–460), plus larges que les dessins pour tolérer une calibration approximative.

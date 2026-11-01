@@ -3,6 +3,11 @@
 Une entrée par version. La constante `VERSION` du programme et ce fichier évoluent ensemble :
 à chaque modification, incrémenter l'une et compléter l'autre.
 
+## V3.9 – 2026-11-01
+
+- Compteur sous la flèche DOWN : « page / total » (page 1 = la plus récente) au lieu de « ligne / total ».
+- Trace série `# TOUCH` retirée (calibration confirmée).
+
 ## V3.8 – 2026-11-01
 
 - UP et DOWN défilent par page (10 enregistrements = 2 h 30) au lieu d'un enregistrement ; la page la plus
