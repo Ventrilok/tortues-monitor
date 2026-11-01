@@ -1,6 +1,6 @@
 /*
 ****************************************************
-* Tortues - Suivi d'hibernation      V3.1 - 2026/10/31
+* Tortues - Suivi d'hibernation      (version : constante VERSION ; historique : CHANGELOG.md)
 ****************************************************
 * MATERIEL (inchange par rapport a la V2)
 *   Arduino MEGA 2560
@@ -41,16 +41,24 @@
 #include <SPI.h>
 #include <avr/wdt.h>
 
-const char VERSION[] = "V3.4";             // affiche en bas a droite de l'ecran et au demarrage
+const char VERSION[] = "V3.6";             // affiche en bas a droite de l'ecran et au demarrage
 
 // =====================================================================
 //  REGLAGES UTILISATEUR
 // =====================================================================
-const float   TEMP_OFFSET       = 4.0;   // compensation capteur (degres C) - voir README.md
+const float   TEMP_OFFSET       = 2.3;   // compensation capteur (degres C) - voir README.md
 const uint8_t MEASURE_EVERY_MIN = 1;     // mesure (ecran + LED) toutes les N minutes
 const uint8_t RECORD_EVERY_MIN  = 15;    // enregistrement SD toutes les N minutes (multiple de MEASURE_EVERY_MIN)
 const uint8_t RESTART_AFTER_FAULTS = 10; // mesures capteur ratees d'affilee avant redemarrage complet (10 min)
 const uint8_t CONFIRM_COUNT     = 3;     // mesures consecutives avant de changer de niveau d'alerte (3 min)
+
+// Dalle tactile : valeurs brutes (0-4095) lues aux bords de l'ecran - voir README.md "Boutons tactiles".
+// Le programme fait lui-meme la conversion en pixels 800x480 : le fichier URTouchCD.h de la
+// bibliotheque (calibre pour un ecran 320x240) n'intervient plus.
+const int16_t TOUCH_RAW_LEFT  = 341,  TOUCH_RAW_RIGHT  = 3853;   // canal A : bord gauche -> bord droit
+const int16_t TOUCH_RAW_TOP   = 222,  TOUCH_RAW_BOTTOM = 3942;   // canal B : bord haut -> bord bas
+const bool    TOUCH_SWAP_XY   = false;   // true si un glissement vertical fait varier x au lieu de y
+const bool    TOUCH_TRACE     = true;    // ecrit "# TOUCH ..." sur le port serie a chaque appui (calibration)
 
 // Seuils. S = surveillance, A = alerte, U = urgence. Plage OK = entre LOW_S et HIGH_S.
 const float T_LOW_U = 3.0, T_LOW_A = 4.0, T_LOW_S = 4.5, T_HIGH_S = 8.0, T_HIGH_A = 9.0, T_HIGH_U = 10.0;
@@ -594,14 +602,42 @@ void refreshAction() {
   while (touch.dataAvailable()) { updateLed(); wdt_reset(); }
   drawButtonState(2, 0);
 }
+// Lecture brute de la dalle (8 echantillons, sans le min et le max) puis conversion en pixels.
+// false si l'appui est trop bref ou les valeurs incoherentes.
+bool touchRead(int16_t &x, int16_t &y) {
+  uint32_t sa = 0, sb = 0;
+  uint16_t minA = 4095, maxA = 0, minB = 4095, maxB = 0;
+  uint8_t n = 0;
+  for (uint8_t i = 0; i < 8; i++) {
+    if (!touch.dataAvailable()) break;
+    touch.calibrateRead();                  // valeurs brutes, sans calibration de la bibliotheque
+    uint16_t a = (uint16_t)touch.TP_Y;      // canal "X" du controleur
+    uint16_t b = (uint16_t)touch.TP_X;      // canal "Y" du controleur
+    if (a == 0 || a >= 4095 || b == 0 || b >= 4095) continue;
+    sa += a; sb += b; n++;
+    if (a < minA) minA = a; if (a > maxA) maxA = a;
+    if (b < minB) minB = b; if (b > maxB) maxB = b;
+  }
+  if (n < 4) return false;
+  sa -= minA + maxA; sb -= minB + maxB; n -= 2;
+  int32_t ra = sa / n, rb = sb / n;
+  if (TOUCH_SWAP_XY) { int32_t t = ra; ra = rb; rb = t; }
+  x = constrain(map(ra, TOUCH_RAW_LEFT, TOUCH_RAW_RIGHT, 0, 799), 0, 799);
+  y = constrain(map(rb, TOUCH_RAW_TOP, TOUCH_RAW_BOTTOM, 0, 479), 0, 479);
+  if (TOUCH_TRACE) {
+    Serial.print(F("# TOUCH brut A=")); Serial.print(ra); Serial.print(F(" B=")); Serial.print(rb);
+    Serial.print(F(" -> x=")); Serial.print(x); Serial.print(F(" y=")); Serial.println(y);
+  }
+  return true;
+}
+// Zones : toute la colonne de droite (x >= 664), trois bandes : UP, DOWN, Refresh.
 void handleTouch() {
   if (!touch.dataAvailable()) return;
-  touch.read();
-  int x = touch.getX(), y = touch.getY();
-  if (x >= 675 && x <= 773) {
-    if (y >= 100 && y <= 150)      scrollAction(0, +1);
-    else if (y >= 200 && y <= 250) scrollAction(1, -1);
-    else if (y >= 375 && y <= 425 && x >= 700 && x <= 750) refreshAction();
+  int16_t x, y;
+  if (touchRead(x, y) && x >= 664) {
+    if (y >= 78 && y <= 175)       scrollAction(0, +1);
+    else if (y >= 176 && y <= 290) scrollAction(1, -1);
+    else if (y >= 350 && y <= 460) refreshAction();
   }
   while (touch.dataAvailable()) { updateLed(); wdt_reset(); }
 }
@@ -736,8 +772,7 @@ void setup() {
 
   tft.InitLCD();
   tft.clrScr();
-  touch.InitTouch();
-  touch.setPrecision(PREC_EXTREME);
+  touch.InitTouch();                        // configure les broches ; la conversion en pixels est faite par touchRead()
   useNormalColors();
   { char buf[32]; snprintf(buf, sizeof(buf), "Tortues %s - demarrage", VERSION); bootMsg(buf, 10, false); }
 

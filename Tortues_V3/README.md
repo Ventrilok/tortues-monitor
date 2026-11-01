@@ -11,6 +11,7 @@ affichage plus grand (10 lignes d'historique).
 | `Tortues_V3.ino` | le programme |
 | `Mono16x32.c`, `Mono32x64.c` | polices d'écran (générées depuis Menlo, format UTFT) |
 | `README.md` | ce document |
+| `CHANGELOG.md` | historique des versions, à compléter à chaque changement de `VERSION` |
 
 Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont pris automatiquement.
 
@@ -18,7 +19,9 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
 
 | Constante | Valeur | Rôle |
 |---|---|---|
-| `TEMP_OFFSET` | 4.0 | compensation de température du capteur (voir calibration) |
+| `TEMP_OFFSET` | 2.3 | compensation de température du capteur (voir calibration) |
+| `TOUCH_RAW_*`, `TOUCH_SWAP_XY` | | calibration de la dalle tactile (voir « Boutons tactiles ») |
+| `TOUCH_TRACE` | true | trace `# TOUCH …` sur le port série à chaque appui |
 | `MEASURE_EVERY_MIN` | 1 | mesure, écran, LED |
 | `RECORD_EVERY_MIN` | 15 | écriture sur carte SD, alignée sur :00 :15 :30 :45 |
 | `CONFIRM_COUNT` | 3 | mesures consécutives avant changement de niveau (3 min) |
@@ -39,7 +42,8 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
 - Dans l'historique, chaque valeur hors plage OK a un fond de la couleur de son niveau.
 - Badge « 24h » (colonne de droite) : pire niveau des dernières 24 h, remis à zéro par **Refresh**.
 - Ligne du bas : état (OK + nombre d'enregistrements + nom du fichier, ou le message de panne) et, à droite,
-  la version du programme (constante `VERSION` en tête du programme, à incrémenter à chaque modification).
+  la version du programme (constante `VERSION` en tête du programme, à incrémenter à chaque modification,
+  avec une entrée dans `CHANGELOG.md`).
 
 ## Écran
 
@@ -100,7 +104,7 @@ Une ligne CSV par mesure : `date_heure;temp;hum;co2;flag;niveau;enregistre` (niv
 
 ## Calibration de l'offset de température (point 10)
 
-Le capteur chauffe légèrement en mesure continue ; la constante `TEMP_OFFSET` (4,0 par défaut) retranche
+Le capteur chauffe légèrement en mesure continue ; la constante `TEMP_OFFSET` (2,3 depuis la V3.6, calibrée le 2026-11-01 : écran 8,5–8,9 °C, référence 10,3–10,5 °C posée à côté de la sonde) retranche
 cette dérive. À 5 °C, 1 °C d'erreur décale aussi l'humidité relative d'environ 7 points, donc l'offset
 conditionne les deux.
 
@@ -117,6 +121,29 @@ d'hibernation (froide et stable), allumé depuis au moins 1 h.
 5. Comparer l'humidité à la référence : après correction de la température elle doit être proche
    (le capteur est donné à ± 6 points). S'il reste un écart constant, c'est la limite du capteur, pas un
    réglage.
+
+## Boutons tactiles (calibration)
+
+Le fichier `URTouchCD.h` de la bibliothèque URTouch installée est celui d'origine, calibré pour un écran
+320 × 240 : avec lui, la position x ne dépasse jamais 319 et la colonne de boutons (x ≥ 664) est
+inatteignable. Depuis la V3.6 le programme lit la dalle en valeurs brutes et fait lui-même la conversion
+en pixels 800 × 480 avec les constantes `TOUCH_RAW_*` ; le fichier de la bibliothèque n'a plus d'effet.
+Les valeurs par défaut sont celles d'origine de la bibliothèque, à ajuster une fois pour cette dalle.
+
+**Comment** (moniteur série de l'IDE, 115200) :
+
+1. Appuyer au milieu de chaque bord de l'écran : gauche, droite, haut, bas. Chaque appui écrit une ligne
+   `# TOUCH brut A=… B=… -> x=… y=…`.
+2. Si un glissement du doigt de haut en bas fait surtout varier **A** (et non B), mettre
+   `TOUCH_SWAP_XY = true` et recommencer.
+3. Reporter : A du bord gauche dans `TOUCH_RAW_LEFT`, A du bord droit dans `TOUCH_RAW_RIGHT`,
+   B du bord haut dans `TOUCH_RAW_TOP`, B du bord bas dans `TOUCH_RAW_BOTTOM`. Si une valeur de bord est
+   plus grande que son opposée (axe inversé), c'est normal : la conversion en tient compte.
+4. Téléverser, vérifier que UP, DOWN et Refresh réagissent (le bouton s'inverse pendant l'appui).
+   Ensuite `TOUCH_TRACE = false` si la trace gêne la lecture du flux CSV.
+
+Les zones de détection couvrent toute la colonne de droite (x ≥ 664) en trois bandes (UP 78–175,
+DOWN 176–290, Refresh 350–460), plus larges que les dessins pour tolérer une calibration approximative.
 
 ## Mise à l'heure
 
