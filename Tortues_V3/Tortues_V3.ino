@@ -41,7 +41,7 @@
 #include <SPI.h>
 #include <avr/wdt.h>
 
-const char VERSION[] = "V3.9";             // affiche en bas a droite de l'ecran et au demarrage
+const char VERSION[] = "V3.10";             // affiche en bas a droite de l'ecran et au demarrage
 
 // =====================================================================
 //  REGLAGES UTILISATEUR
@@ -411,7 +411,7 @@ void drawButtons(bool available) {
   uint8_t c = available ? 255 : GREY;
   tft.setColor(0, 0, 0);
   tft.fillRect(664, 78, 799, 290);          // zone UP + DOWN
-  tft.fillRect(664, 370, 799, 460);         // zone Refresh
+  tft.fillRect(664, 370, 799, 460);         // zone Actuel (retour a la page 1)
   tft.setColor(c, c, c); tft.setBackColor(0, 0, 0);
   tft.setFont(BigFont);
   tft.print("UP", 710, 80);
@@ -419,10 +419,10 @@ void drawButtons(bool available) {
   tft.print("DOWN", 690, 260);
   for (int ii = 0, jj = 200; jj <= 250; jj++, ii++) tft.drawLine(675 + ii, jj + 1, 773 - ii, jj + 1);
   tft.fillCircle(725, 400, 25);
-  tft.print("Refresh", 670, 440);
+  tft.print("Actuel", 684, 440);
   useNormalColors();
 }
-// which 0=UP 1=DOWN 2=Refresh ; state 0=normal 1=appuye (inverse) 2=butee (gris)
+// which 0=UP 1=DOWN 2=Actuel ; state 0=normal 1=appuye (inverse) 2=butee (gris)
 void drawButtonState(uint8_t which, uint8_t state) {
   tft.setFont(BigFont);
   if (state == 1)      { tft.setColor(0, 0, 0); tft.setBackColor(255, 255, 255); }
@@ -430,7 +430,7 @@ void drawButtonState(uint8_t which, uint8_t state) {
   else                 { tft.setColor(255, 255, 255); tft.setBackColor(0, 0, 0); }
   if (which == 0) tft.print("UP", 710, 80);
   else if (which == 1) tft.print("DOWN", 690, 260);
-  else tft.print("Refresh", 670, 440);
+  else tft.print("Actuel", 684, 440);
   useNormalColors();
 }
 
@@ -603,7 +603,7 @@ void scrollAction(uint8_t which, int8_t dir) {
   } while (touch.dataAvailable());
   drawButtonState(which, 0);
 }
-void refreshAction() {
+void refreshAction() {                      // bouton Actuel : page 1 (la plus recente) + remise a zero du badge 24h
   drawButtonState(2, 1);
   followLive = true;
   if (numRec > 0) viewTop = fileBytes - REC_SIZE;
@@ -636,7 +636,7 @@ bool touchRead(int16_t &x, int16_t &y) {
   y = constrain(map(rb, TOUCH_RAW_TOP, TOUCH_RAW_BOTTOM, 0, 479), 0, 479);
   return true;
 }
-// Zones : toute la colonne de droite (x >= 664), trois bandes : UP, DOWN, Refresh.
+// Zones : toute la colonne de droite (x >= 664), trois bandes : UP, DOWN, Actuel.
 void handleTouch() {
   if (!touch.dataAvailable()) return;
   int16_t x, y;

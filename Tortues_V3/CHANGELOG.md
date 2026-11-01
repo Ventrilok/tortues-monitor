@@ -3,6 +3,11 @@
 Une entrée par version. La constante `VERSION` du programme et ce fichier évoluent ensemble :
 à chaque modification, incrémenter l'une et compléter l'autre.
 
+## V3.10 – 2026-11-01
+
+- Le bouton rond s'appelle « Actuel » (au lieu de « Refresh ») : retour à la page 1, la plus récente,
+  et remise à zéro du badge 24h (comportement inchangé).
+
 ## V3.9 – 2026-11-01
 
 - Compteur sous la flèche DOWN : « page / total » (page 1 = la plus récente) au lieu de « ligne / total ».
