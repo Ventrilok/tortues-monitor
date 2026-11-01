@@ -3,7 +3,12 @@
 Une entrée par version. La constante `VERSION` du programme et ce fichier évoluent ensemble :
 à chaque modification, incrémenter l'une et compléter l'autre.
 
-## V3.7 – 2026-11-01
+## V3.8 – 2026-11-01
+
+- UP et DOWN défilent par page (10 enregistrements = 2 h 30) au lieu d'un enregistrement ; la page la plus
+  ancienne reste pleine. Répétition en maintien : une page toutes les 400 ms.
+
+## V3.7 – 2026-11-01 (téléversée, boutons confirmés fonctionnels)
 
 - Calibration tactile mesurée sur la dalle (trace série de la V3.6) : axes croisés et inversés par
   rapport à l'estimation de la V3.6 (`TOUCH_SWAP_XY = true`, gauche 3490 → droite 327,

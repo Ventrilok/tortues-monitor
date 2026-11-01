@@ -41,7 +41,7 @@
 #include <SPI.h>
 #include <avr/wdt.h>
 
-const char VERSION[] = "V3.7";             // affiche en bas a droite de l'ecran et au demarrage
+const char VERSION[] = "V3.8";             // affiche en bas a droite de l'ecran et au demarrage
 
 // =====================================================================
 //  REGLAGES UTILISATEUR
@@ -564,15 +564,21 @@ void flashLimit(uint8_t which) {            // butee : bouton en rouge 300 ms
   drawButtonState(which, 1);
 }
 // dir +1 : vers le plus recent (UP) ; -1 : vers le plus ancien (DOWN). false si en butee.
+// Defilement par page : un appui deplace l'historique de ROWS enregistrements (une page), la premiere
+// ou la derniere page restant pleine. dir +1 : vers le plus recent (UP) ; -1 : vers le plus ancien (DOWN).
+// false si deja en butee.
 bool scrollBy(int8_t dir) {
   if (numRec < 2) return false;
+  const uint32_t page = (uint32_t)ROWS * REC_SIZE;
+  const uint32_t last = fileBytes - REC_SIZE;                 // offset du plus recent
+  const uint32_t first = (numRec > ROWS) ? (uint32_t)(ROWS - 1) * REC_SIZE : last;   // page la plus ancienne pleine
   if (dir > 0) {
-    if (viewTop + REC_SIZE > fileBytes - REC_SIZE) return false;
-    viewTop += REC_SIZE;
-    if (viewTop == fileBytes - REC_SIZE) followLive = true;
+    if (viewTop >= last) return false;
+    viewTop = (last - viewTop > page) ? viewTop + page : last;
+    if (viewTop == last) followLive = true;
   } else {
-    if (viewTop == 0) return false;
-    viewTop -= REC_SIZE;
+    if (viewTop <= first) return false;
+    viewTop = (viewTop - first > page) ? viewTop - page : first;
     followLive = false;
   }
   drawHistory();
@@ -583,10 +589,10 @@ bool scrollBy(int8_t dir) {
 void scrollAction(uint8_t which, int8_t dir) {
   drawButtonState(which, 1);
   unsigned long lastStep = 0;
-  uint16_t repeatDelay = 600;               // maintien = repetition
+  uint16_t repeatDelay = 700;               // maintien = repetition (une page toutes les 400 ms)
   do {
     if (millis() - lastStep >= repeatDelay) {
-      lastStep = millis(); repeatDelay = 200;
+      lastStep = millis(); repeatDelay = 400;
       if (!scrollBy(dir)) flashLimit(which);
     }
     updateLed(); wdt_reset();

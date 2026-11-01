@@ -49,7 +49,8 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
 
 - Bandeau : date/heure de la dernière mesure, valeurs en gros, fond = niveau global.
 - 10 lignes d'historique, une par enregistrement (15 min) → 2 h 30 visibles.
-- **UP** = vers le plus récent, **DOWN** = vers le plus ancien. Maintenir le doigt = défilement continu.
+- **UP** = vers le plus récent, **DOWN** = vers le plus ancien, **par page de 10 lignes** (2 h 30). La page
+  la plus ancienne reste pleine. Maintenir le doigt = défilement continu.
   L'historique garde sa position quand une nouvelle mesure arrive, sauf s'il est déjà sur la ligne la
   plus récente. Compteur « ligne / total » sous la flèche DOWN.
 - **Refresh** = retour au plus récent + remise à zéro du badge 24h.
