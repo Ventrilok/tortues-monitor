@@ -41,7 +41,7 @@
 #include <SPI.h>
 #include <avr/wdt.h>
 
-const char VERSION[] = "V3.6";             // affiche en bas a droite de l'ecran et au demarrage
+const char VERSION[] = "V3.7";             // affiche en bas a droite de l'ecran et au demarrage
 
 // =====================================================================
 //  REGLAGES UTILISATEUR
@@ -55,9 +55,9 @@ const uint8_t CONFIRM_COUNT     = 3;     // mesures consecutives avant de change
 // Dalle tactile : valeurs brutes (0-4095) lues aux bords de l'ecran - voir README.md "Boutons tactiles".
 // Le programme fait lui-meme la conversion en pixels 800x480 : le fichier URTouchCD.h de la
 // bibliotheque (calibre pour un ecran 320x240) n'intervient plus.
-const int16_t TOUCH_RAW_LEFT  = 341,  TOUCH_RAW_RIGHT  = 3853;   // canal A : bord gauche -> bord droit
-const int16_t TOUCH_RAW_TOP   = 222,  TOUCH_RAW_BOTTOM = 3942;   // canal B : bord haut -> bord bas
-const bool    TOUCH_SWAP_XY   = false;   // true si un glissement vertical fait varier x au lieu de y
+const int16_t TOUCH_RAW_LEFT  = 3490, TOUCH_RAW_RIGHT  = 327;    // bord gauche -> bord droit (axe inverse)
+const int16_t TOUCH_RAW_TOP   = 3930, TOUCH_RAW_BOTTOM = 610;    // bord haut -> bord bas (axe inverse)
+const bool    TOUCH_SWAP_XY   = true;    // sur cette dalle le canal B porte l'horizontale, le canal A la verticale
 const bool    TOUCH_TRACE     = true;    // ecrit "# TOUCH ..." sur le port serie a chaque appui (calibration)
 
 // Seuils. S = surveillance, A = alerte, U = urgence. Plage OK = entre LOW_S et HIGH_S.

@@ -128,7 +128,8 @@ Le fichier `URTouchCD.h` de la bibliothèque URTouch installée est celui d'orig
 320 × 240 : avec lui, la position x ne dépasse jamais 319 et la colonne de boutons (x ≥ 664) est
 inatteignable. Depuis la V3.6 le programme lit la dalle en valeurs brutes et fait lui-même la conversion
 en pixels 800 × 480 avec les constantes `TOUCH_RAW_*` ; le fichier de la bibliothèque n'a plus d'effet.
-Les valeurs par défaut sont celles d'origine de la bibliothèque, à ajuster une fois pour cette dalle.
+Les valeurs en place ont été mesurées le 2026-11-01 sur cette dalle (canal B = horizontale décroissante,
+canal A = verticale décroissante) ; la procédure ci-dessous sert si l'écran ou la dalle change.
 
 **Comment** (moniteur série de l'IDE, 115200) :
 

@@ -3,7 +3,14 @@
 Une entrée par version. La constante `VERSION` du programme et ce fichier évoluent ensemble :
 à chaque modification, incrémenter l'une et compléter l'autre.
 
-## V3.6 – 2026-11-01 (compilée, à téléverser)
+## V3.7 – 2026-11-01
+
+- Calibration tactile mesurée sur la dalle (trace série de la V3.6) : axes croisés et inversés par
+  rapport à l'estimation de la V3.6 (`TOUCH_SWAP_XY = true`, gauche 3490 → droite 327,
+  haut 3930 → bas 610). Avec ces valeurs les trois boutons tombent dans leurs zones.
+- Trace `# TOUCH` laissée active en attendant la confirmation sur l'appareil.
+
+## V3.6 – 2026-11-01 (téléversée, boutons toujours inopérants : calibration estimée fausse)
 
 - **Boutons tactiles réparés.** La bibliothèque URTouch réinstallée le 30 octobre contient la
   calibration d'origine (écran 320 × 240) : la position horizontale ne dépassait jamais 319 et la
