@@ -3,6 +3,11 @@
 Une entrée par version. La constante `VERSION` du programme et ce fichier évoluent ensemble :
 à chaque modification, incrémenter l'une et compléter l'autre.
 
+## V3.12 – 2026-11-01
+
+- NOW ne fait plus que naviguer : la remise à zéro du badge 24h est supprimée, le badge s'efface de
+  lui-même avec la fenêtre glissante de 24 h.
+
 ## V3.11 – 2026-11-01
 
 - Axe vertical de la dalle remis dans le bon sens : en V3.7–V3.10 il était inversé, si bien que le bouton

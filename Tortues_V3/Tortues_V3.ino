@@ -41,7 +41,7 @@
 #include <SPI.h>
 #include <avr/wdt.h>
 
-const char VERSION[] = "V3.11";             // affiche en bas a droite de l'ecran et au demarrage
+const char VERSION[] = "V3.12";             // affiche en bas a droite de l'ecran et au demarrage
 
 // =====================================================================
 //  REGLAGES UTILISATEUR
@@ -241,7 +241,6 @@ uint8_t worst24h() {                        // pannes exclues (niveaux 0..3)
   for (uint16_t i = 0; i < ringCount; i++) if (ring[i] <= LVL_URGENT && ring[i] > w) w = ring[i];
   return w;
 }
-void clearRing() { ringCount = 0; ringPos = 0; }
 
 // =====================================================================
 //  LED
@@ -603,12 +602,11 @@ void scrollAction(uint8_t which, int8_t dir) {
   } while (touch.dataAvailable());
   drawButtonState(which, 0);
 }
-void refreshAction() {                      // bouton NOW : page 1 (la plus recente) + remise a zero du badge 24h
+void refreshAction() {                      // bouton NOW : retour a la page 1 (la plus recente)
   drawButtonState(2, 1);
   followLive = true;
   if (numRec > 0) viewTop = fileBytes - REC_SIZE;
-  clearRing();                              // remise a zero du badge 24h
-  drawHistory(); drawScrollIndicator(); drawBadge24h();
+  drawHistory(); drawScrollIndicator();
   while (touch.dataAvailable()) { updateLed(); wdt_reset(); }
   drawButtonState(2, 0);
 }

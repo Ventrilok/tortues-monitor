@@ -39,7 +39,7 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
 - Montée de niveau : 3 mesures consécutives (3 min).
 - Descente : la valeur doit être revenue avec une marge (0,3 °C, 2 points d'humidité, 200 ppm).
 - Dans l'historique, chaque valeur hors plage OK a un fond de la couleur de son niveau.
-- Badge « 24h » (colonne de droite) : pire niveau des dernières 24 h, remis à zéro par **NOW**.
+- Badge « 24h » (colonne de droite) : pire niveau des dernières 24 h (fenêtre glissante, s'efface de lui-même).
 - Ligne du bas : état (OK + nombre d'enregistrements + nom du fichier, ou le message de panne) et, à droite,
   la version du programme (constante `VERSION` en tête du programme, à incrémenter à chaque modification,
   avec une entrée dans `CHANGELOG.md`).
@@ -53,7 +53,7 @@ Ouvrir `Tortues_V3.ino` dans l'IDE Arduino : les deux fichiers de polices sont p
   flèche DOWN (page 1 = la plus récente).
   L'historique garde sa position quand une nouvelle mesure arrive, sauf s'il est déjà sur la ligne la
   plus récente.
-- **NOW** (rond) = retour à la page 1, la plus récente, + remise à zéro du badge 24h.
+- **NOW** (rond) = retour à la page 1, la plus récente.
 - Boutons en blanc = actifs, en gris = inactifs (moins de deux enregistrements) ; inversés pendant l'appui,
   brièvement gris en butée. L'horloge est neutre (blanc sur noir). Seuls le bandeau, les valeurs de
   l'historique et le badge 24h portent une couleur, toujours celle d'un niveau d'alerte.
